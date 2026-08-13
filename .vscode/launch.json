@@ -1,0 +1,44 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AMP-Mac}",
+            "name": "Debug AMPApp",
+            "target": "AMPApp",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AMPApp"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AMP-Mac}",
+            "name": "Release AMPApp",
+            "target": "AMPApp",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AMPApp"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AMP-Mac}",
+            "name": "Debug AMPiOSApp",
+            "target": "AMPiOSApp",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug AMPiOSApp"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:AMP-Mac}",
+            "name": "Release AMPiOSApp",
+            "target": "AMPiOSApp",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release AMPiOSApp"
+        }
+    ]
+}

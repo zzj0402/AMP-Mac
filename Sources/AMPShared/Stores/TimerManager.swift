@@ -54,13 +54,7 @@ public final class TimerManager: ObservableObject {
     }
 
     public var phaseColor: Color {
-        switch phase {
-        case .sprint: return .blue
-        case .sync: return .orange
-        case .reset: return .purple
-        case .rest: return .green
-        case .idle: return .secondary
-        }
+        phase.color
     }
 
     public init() {

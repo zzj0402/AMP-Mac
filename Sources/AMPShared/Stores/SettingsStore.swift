@@ -30,6 +30,9 @@ final class SettingsStore: ObservableObject {
     @Published var floatingTimerEnabled: Bool {
         didSet { save() }
     }
+    @Published var focusColor: FocusColor {
+        didSet { save() }
+    }
 
     private let db = Database.shared
 
@@ -43,6 +46,7 @@ final class SettingsStore: ObservableObject {
         _notificationsEnabled = .init(wrappedValue: s.notificationsEnabled)
         _trackingEnabled = .init(wrappedValue: s.trackingEnabled)
         _floatingTimerEnabled = .init(wrappedValue: s.floatingTimerEnabled)
+        _focusColor = .init(wrappedValue: s.focusColor)
     }
 
     private func save() {
@@ -54,7 +58,8 @@ final class SettingsStore: ObservableObject {
             restAfterCycles: restAfterCycles,
             notificationsEnabled: notificationsEnabled,
             trackingEnabled: trackingEnabled,
-            floatingTimerEnabled: floatingTimerEnabled
+            floatingTimerEnabled: floatingTimerEnabled,
+            focusColor: focusColor
         ))
     }
 }

@@ -1,5 +1,19 @@
 import SwiftUI
 
+extension FocusColor {
+    public var color: Color {
+        switch self {
+        case .blue: return .blue
+        case .orange: return .orange
+        case .purple: return .purple
+        case .green: return .green
+        case .red: return .red
+        case .teal: return .teal
+        case .pink: return .pink
+        }
+    }
+}
+
 extension Phase {
     var displayName: String {
         switch self {
@@ -23,7 +37,7 @@ extension Phase {
 
     var color: Color {
         switch self {
-        case .sprint: return .blue
+        case .sprint: return Database.shared.getSettings().focusColor.color
         case .sync: return .orange
         case .reset: return .purple
         case .rest: return .green

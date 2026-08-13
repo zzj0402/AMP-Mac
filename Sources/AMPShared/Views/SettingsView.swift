@@ -19,6 +19,24 @@ struct SettingsView: View {
             }
 
             Section {
+                Picker("Focus color", selection: $settingsStore.focusColor) {
+                    ForEach(FocusColor.allCases, id: \.self) { color in
+                        Label {
+                            Text(color.displayName)
+                        } icon: {
+                            Circle()
+                                .fill(color.color)
+                                .frame(width: 14, height: 14)
+                        }
+                    }
+                }
+            } header: {
+                Text("Focus color")
+            } footer: {
+                Text("Sets the color of the countdown ring and the focus phase indicator.")
+            }
+
+            Section {
                 Toggle(isOn: $settingsStore.notificationsEnabled) {
                     Text("Phase-change notifications")
                 }

@@ -39,6 +39,7 @@ public final class Database {
     private let setNotificationsEnabled = Expression<Bool>("notifications_enabled")
     private let setTrackingEnabled = Expression<Bool>("tracking_enabled")
     private let setFloatingTimerEnabled = Expression<Bool>("floating_timer_enabled")
+    private let setFocusColor = Expression<String>("focus_color")
 
     private init() {
         let appSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)
@@ -97,6 +98,7 @@ public final class Database {
             s.column(setNotificationsEnabled)
             s.column(setTrackingEnabled)
             s.column(setFloatingTimerEnabled, defaultValue: true)
+            s.column(setFocusColor, defaultValue: FocusColor.blue.rawValue)
         })
     }
 
@@ -109,6 +111,9 @@ public final class Database {
         } ?? []
         if !names.contains("floating_timer_enabled") {
             try? db.run("ALTER TABLE settings ADD COLUMN floating_timer_enabled INTEGER NOT NULL DEFAULT 1")
+        }
+        if !names.contains("focus_color") {
+            try? db.run("ALTER TABLE settings ADD COLUMN focus_color TEXT NOT NULL DEFAULT '\(FocusColor.blue.rawValue)'")
         }
     }
 
@@ -126,7 +131,8 @@ public final class Database {
                 setRestAfterCycles <- Int64(defaults.restAfterCycles),
                 setNotificationsEnabled <- defaults.notificationsEnabled,
                 setTrackingEnabled <- defaults.trackingEnabled,
-                setFloatingTimerEnabled <- defaults.floatingTimerEnabled
+                setFloatingTimerEnabled <- defaults.floatingTimerEnabled,
+                setFocusColor <- defaults.focusColor.rawValue
             ))
         }
     }
@@ -144,7 +150,8 @@ public final class Database {
                 restAfterCycles: Int(row[setRestAfterCycles]),
                 notificationsEnabled: row[setNotificationsEnabled],
                 trackingEnabled: row[setTrackingEnabled],
-                floatingTimerEnabled: row[setFloatingTimerEnabled]
+                floatingTimerEnabled: row[setFloatingTimerEnabled],
+                focusColor: FocusColor(rawValue: row[setFocusColor]) ?? .blue
             )
         }
         return AppSettings()
@@ -161,7 +168,8 @@ public final class Database {
             setRestAfterCycles <- Int64(s.restAfterCycles),
             setNotificationsEnabled <- s.notificationsEnabled,
             setTrackingEnabled <- s.trackingEnabled,
-            setFloatingTimerEnabled <- s.floatingTimerEnabled
+            setFloatingTimerEnabled <- s.floatingTimerEnabled,
+            setFocusColor <- s.focusColor.rawValue
         ))
         postChange()
     }
