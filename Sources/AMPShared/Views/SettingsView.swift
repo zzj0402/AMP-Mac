@@ -3,9 +3,25 @@ import SwiftUI
 struct SettingsView: View {
     @EnvironmentObject var settingsStore: SettingsStore
     @EnvironmentObject var timer: TimerManager
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         Form {
+            Section {
+                HStack {
+                    Spacer()
+                    Button {
+                        dismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                            .padding(7)
+                    }
+                    .buttonStyle(.plain)
+                }
+            }
+
             Section {
                 DurationRow(title: "Sprint", systemImage: "bolt.fill", color: .blue, range: 1...90, unit: " min", value: $settingsStore.sprintMinutes, accessibilityID: "sprintStepper")
                 DurationRow(title: "Logging", systemImage: "pencil.line", color: .orange, range: 0...30, unit: " min", value: $settingsStore.syncMinutes)
@@ -40,9 +56,11 @@ struct SettingsView: View {
                 Toggle(isOn: $settingsStore.notificationsEnabled) {
                     Text("Phase-change notifications")
                 }
+                #if canImport(AppKit)
                 Toggle(isOn: $settingsStore.trackingEnabled) {
                     Text("Window tracking")
                 }
+                #endif
                 Toggle(isOn: $settingsStore.floatingTimerEnabled) {
                     Text("Floating timer overlay")
                 }

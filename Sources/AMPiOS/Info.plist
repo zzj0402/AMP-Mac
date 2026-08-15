@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Bundle identity & versioning.
+         SwiftPM injects/overrides CFBundleIdentifier, CFBundleExecutable,
+         CFBundleName, CFBundleVersion, and CFBundleShortVersionString from the
+         package definition; these are kept for readability and to mirror the
+         macOS app (same app, two platforms). -->
+    <key>CFBundleDevelopmentRegion</key>
+    <string>en</string>
+    <key>CFBundleExecutable</key>
+    <string>AMPiOSApp</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.zingg.AMP</string>
+    <key>CFBundleInfoDictionaryVersion</key>
+    <string>6.0</string>
+    <key>CFBundleName</key>
+    <string>AMP</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>CFBundleSignature</key>
+    <string>APMP</string>
+
+    <!-- Device family: iPhone (1) + iPad (2). -->
+    <key>UIDeviceFamily</key>
+    <array>
+        <integer>1</integer>
+        <integer>2</integer>
+    </array>
+
+    <!-- Orientations. Top-level applies to iPhone; the ~ipad variant enables
+         landscape on iPad (required because UIRequiresFullScreen is false). -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+    </array>
+    <key>UISupportedInterfaceOrientations~ipad</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+        <string>UIInterfaceOrientationPortraitUpsideDown</string>
+        <string>UIInterfaceOrientationLandscapeLeft</string>
+        <string>UIInterfaceOrientationLandscapeRight</string>
+        <string>UIInterfaceOrientationMac</string>
+    </array>
+
+    <!-- iPad multitasking: allow split view / slide over with a single scene. -->
+    <key>UIRequiresFullScreen</key>
+    <false/>
+
+    <!-- Status bar: dark text on the light iOS theme (SwiftUI reads this). -->
+    <key>UIStatusBarStyle</key>
+    <string>UIStatusBarStyleDefault</string>
+
+    <!-- Launch screen (created by follow-up task #3). -->
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+
+    <!-- Single-scene SwiftUI App lifecycle. iPad multiwindow can be enabled
+         later by flipping UIApplicationSupportsMultipleScenes to true. -->
+    <key>UIApplicationSceneManifest</key>
+    <dict>
+        <key>UIApplicationSupportsMultipleScenes</key>
+        <false/>
+        <key>UIApplicationMainInterfaceOrientation</key>
+        <string>UIInterfaceOrientationPortrait</string>
+    </dict>
+</dict>
+</plist>

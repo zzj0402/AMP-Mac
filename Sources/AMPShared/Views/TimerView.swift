@@ -4,6 +4,22 @@ struct TimerView: View {
     @EnvironmentObject var timer: TimerManager
     @EnvironmentObject var settingsStore: SettingsStore
     @EnvironmentObject var taskStore: TaskStore
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+
+    @State private var taskPendingRemoval: Task?
+
+    private var isCompactWidth: Bool {
+        horizontalSizeClass == .compact
+    }
+
+    private var adaptivePadding: CGFloat {
+        isCompactWidth ? 16 : 20
+    }
+
+
+    private var cardMaxWidth: CGFloat {
+        isCompactWidth ? .infinity : 480
+    }
 
     private var cardBackgroundColor: Color {
         #if canImport(AppKit)
@@ -21,9 +37,12 @@ struct TimerView: View {
             if timer.phase == .idle {
                 taskPicker
                     .transition(.move(edge: .bottom).combined(with: .opacity))
+            } else if timer.phase == .sync {
+                logPanel
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
             }
         }
-        .padding(20)
+        .padding(adaptivePadding)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .animation(.easeInOut(duration: 0.3), value: timer.phase)
     }
@@ -44,7 +63,7 @@ struct TimerView: View {
         }
         .padding(.vertical, 30)
         .padding(.horizontal, 24)
-        .frame(maxWidth: 480)
+        .frame(maxWidth: cardMaxWidth)
         .background(cardBackground)
         .shadow(color: Color.black.opacity(0.08), radius: 20, x: 0, y: 10)
     }
@@ -173,6 +192,127 @@ struct TimerView: View {
         }
     }
 
+    // MARK: - Log phase
+
+    private var logPanel: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 6) {
+                Image(systemName: Phase.sync.icon)
+                    .foregroundStyle(Phase.sync.color)
+                Text("Log your work")
+                    .font(.subheadline.weight(.semibold))
+                Spacer()
+                Text("\(taskStore.pending.count) open")
+                    .font(.caption.weight(.medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 3)
+                    .background(.quaternary.opacity(0.6), in: Capsule())
+            }
+
+            if logTasks.isEmpty {
+                Text("Nothing left to log — every task is complete.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            } else {
+                ScrollView {
+                    VStack(spacing: 4) {
+                        ForEach(logTasks) { task in
+                            LogTaskRow(
+                                task: task,
+                                isCurrent: task.id == timer.currentTask?.id,
+                                onComplete: { complete(task) },
+                                onReopen: { taskStore.reopen(task) },
+                                onRemove: { taskPendingRemoval = task }
+                            )
+                        }
+                    }
+                }
+                .frame(maxHeight: 168)
+            }
+
+            if !recentlyCompleted.isEmpty {
+                Divider()
+                HStack(spacing: 6) {
+                    Image(systemName: "checkmark.seal.fill")
+                        .font(.caption)
+                        .foregroundStyle(.green)
+                    Text(recentlyCompleted.count == 1
+                         ? "1 task completed"
+                         : "\(recentlyCompleted.count) tasks completed")
+                        .font(.caption.weight(.medium))
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    if let last = recentlyCompleted.first {
+                        Button("Undo") { taskStore.reopen(last) }
+                            .buttonStyle(.borderless)
+                            .font(.caption.weight(.semibold))
+                            .help("Reopen \"\(last.title)\"")
+                    }
+                }
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: cardMaxWidth)
+        .background(cardBackgroundColor.opacity(0.7), in: RoundedRectangle(cornerRadius: 16, style: .continuous))
+        .confirmationDialog(
+            taskPendingRemoval.map { "Remove \"\($0.title)\"?" } ?? "Remove task?",
+            isPresented: removalConfirmationPresented,
+            titleVisibility: .visible
+        ) {
+            Button("Remove Task", role: .destructive) {
+                if let task = taskPendingRemoval { remove(task) }
+                taskPendingRemoval = nil
+            }
+            Button("Cancel", role: .cancel) { taskPendingRemoval = nil }
+        } message: {
+            Text("This deletes the task and its recorded sessions. This cannot be undone.")
+        }
+    }
+
+    /// Open tasks, with the current focus task pinned to the top so it is the
+    /// first thing you can log against.
+    private var logTasks: [Task] {
+        let open = taskStore.pending
+        guard let currentId = timer.currentTask?.id,
+              let index = open.firstIndex(where: { $0.id == currentId }) else { return open }
+        var ordered = open
+        let current = ordered.remove(at: index)
+        ordered.insert(current, at: 0)
+        return ordered
+    }
+
+    /// Tasks completed today, newest first, so the log summary reflects this
+    /// session's work rather than all-time completions.
+    private var recentlyCompleted: [Task] {
+        taskStore.completed
+            .filter { AppDate.isToday($0.completedAt) }
+            .sorted { ($0.completedAt ?? "") > ($1.completedAt ?? "") }
+    }
+
+    private var removalConfirmationPresented: Binding<Bool> {
+        Binding(
+            get: { taskPendingRemoval != nil },
+            set: { if !$0 { taskPendingRemoval = nil } }
+        )
+    }
+
+    private func complete(_ task: Task) {
+        let wasCurrent = task.id == timer.currentTask?.id
+        taskStore.complete(task)
+        if wasCurrent {
+            timer.currentTask = taskStore.nextPending(excluding: task)
+        }
+    }
+
+    private func remove(_ task: Task) {
+        let wasCurrent = task.id == timer.currentTask?.id
+        taskStore.delete(task)
+        if wasCurrent {
+            timer.currentTask = taskStore.nextPending(excluding: task)
+        }
+    }
+
     private var taskPicker: some View {
         VStack(alignment: .leading, spacing: 10) {
             HStack(spacing: 6) {
@@ -214,6 +354,93 @@ struct TimerView: View {
                 }
             }
         )
+    }
+}
+
+/// One open task in the log phase, with inline complete and remove actions.
+private struct LogTaskRow: View {
+    let task: Task
+    let isCurrent: Bool
+    let onComplete: () -> Void
+    let onReopen: () -> Void
+    let onRemove: () -> Void
+
+    private var isDone: Bool { task.status == .done }
+
+    private var hitSize: CGFloat {
+        #if os(iOS)
+        return 44
+        #else
+        return 26
+        #endif
+    }
+
+    var body: some View {
+        HStack(spacing: 10) {
+            Button(action: isDone ? onReopen : onComplete) {
+                Image(systemName: isDone ? "checkmark.circle.fill" : "circle")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(isDone ? Color.green : Color.secondary)
+                    .frame(width: hitSize, height: hitSize)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help(isDone ? "Reopen this task" : "Mark this task complete")
+            .accessibilityLabel(isDone ? "Reopen \(task.title)" : "Complete \(task.title)")
+
+            Text(task.title)
+                .font(.callout)
+                .strikethrough(isDone)
+                .foregroundStyle(isDone ? Color.secondary : Color.primary)
+                .lineLimit(1)
+
+            if isCurrent {
+                Image(systemName: "target")
+                    .font(.caption2.weight(.semibold))
+                    .foregroundStyle(.blue)
+                    .help("Current focus task")
+            }
+
+            Spacer(minLength: 8)
+
+            Button(role: .destructive, action: onRemove) {
+                Image(systemName: "trash")
+                    .font(.system(size: 12, weight: .semibold))
+                    .foregroundStyle(.secondary)
+                    .frame(width: hitSize, height: hitSize)
+                    .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            .help("Remove this task")
+            .accessibilityLabel("Remove \(task.title)")
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 2)
+        .background(
+            RoundedRectangle(cornerRadius: 8, style: .continuous)
+                .fill(isCurrent ? Color.blue.opacity(0.08) : Color.clear)
+        )
+        .contextMenu {
+            if isDone {
+                Button {
+                    onReopen()
+                } label: {
+                    Label("Reopen Task", systemImage: "arrow.uturn.backward")
+                }
+            } else {
+                Button {
+                    onComplete()
+                } label: {
+                    Label("Complete Task", systemImage: "checkmark.circle")
+                }
+            }
+            Divider()
+            Button(role: .destructive) {
+                onRemove()
+            } label: {
+                Label("Remove Task", systemImage: "trash")
+            }
+        }
     }
 }
 

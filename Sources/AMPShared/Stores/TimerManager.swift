@@ -200,6 +200,7 @@ public final class TimerManager: ObservableObject {
 
         if settings.notificationsEnabled {
             soundPlayer.play()
+            PlatformBridge.notifyPhaseChange(newPhase)
         }
 
         if newPhase == .sprint {

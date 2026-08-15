@@ -30,8 +30,17 @@ public struct MainView: View {
     @StateObject private var timerManager = TimerManager()
     @State private var section: AppSection = .focus
     @State private var showSettings = false
+    @Environment(\.horizontalSizeClass) private var horizontalSizeClass
 
     public init() {}
+
+    private var isCompactWidth: Bool {
+        horizontalSizeClass == .compact
+    }
+
+    private var adaptivePadding: CGFloat {
+        isCompactWidth ? 16 : 20
+    }
 
     public var body: some View {
         ZStack(alignment: .top) {
@@ -47,7 +56,7 @@ public struct MainView: View {
                 }
                 .pickerStyle(.segmented)
                 .labelsHidden()
-                .padding(.horizontal, 20)
+                .padding(.horizontal, adaptivePadding)
                 .padding(.top, 10)
 
                 content
@@ -114,7 +123,7 @@ public struct MainView: View {
                 .keyboardShortcut(",", modifiers: [.command])
             }
         }
-        .padding(.horizontal, 20)
+        .padding(.horizontal, adaptivePadding)
         .padding(.vertical, 14)
     }
 

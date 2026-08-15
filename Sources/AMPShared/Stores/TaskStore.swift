@@ -29,19 +29,41 @@ final class TaskStore: ObservableObject {
     }
 
     func toggleDone(_ task: Task) {
+        setDone(task, done: task.status != .done)
+    }
+
+    /// Explicitly marks a task done or reopens it. Used by the log phase where the
+    /// intent is always unambiguous rather than a toggle.
+    func setDone(_ task: Task, done: Bool) {
         var updated = task
-        updated.status = task.status == .done ? .pending : .done
-        if updated.status == .done {
-            updated.completedAt = ISO8601DateFormatter().string(from: Date())
-        } else {
-            updated.completedAt = nil
-        }
+        updated.status = done ? .done : .pending
+        updated.completedAt = done ? ISO8601DateFormatter().string(from: Date()) : nil
         db.updateTask(updated)
+        reload()
+    }
+
+    func complete(_ task: Task) {
+        setDone(task, done: true)
+    }
+
+    func reopen(_ task: Task) {
+        setDone(task, done: false)
     }
 
     func delete(at offsets: IndexSet) {
         offsets.map { tasks[$0].id }.compactMap { $0 }.forEach { db.deleteTask(taskId: $0) }
         reload()
+    }
+
+    func delete(_ task: Task) {
+        guard let id = task.id else { return }
+        db.deleteTask(taskId: id)
+        reload()
+    }
+
+    /// First open task that is not `excluding`, used to pick a replacement focus task.
+    func nextPending(excluding excluded: Task? = nil) -> Task? {
+        pending.first { $0.id != excluded?.id }
     }
 
     var pending: [Task] { tasks.filter { $0.status != .done } }

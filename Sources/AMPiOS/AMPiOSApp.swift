@@ -2,7 +2,7 @@ import SwiftUI
 import AMPShared
 
 #if os(iOS)
-import UIKit
+import UserNotifications
 #endif
 
 @main
@@ -14,6 +14,10 @@ struct AMPiOSApp: App {
             let generator = UINotificationFeedbackGenerator()
             generator.notificationOccurred(.success)
         }
+        PlatformBridge.registerPhaseNotification { phase, title in
+            AMPNotificationScheduler.schedule(phase: phase, title: title)
+        }
+        AMPNotificationScheduler.requestPermission()
         #endif
     }
 

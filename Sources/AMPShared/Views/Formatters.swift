@@ -16,6 +16,11 @@ enum AppDate {
         return formatter.string(from: date)
     }
 
+    static func isToday(_ value: String?) -> Bool {
+        guard let value, let date = parse(value) else { return false }
+        return Calendar.current.isDateInToday(date)
+    }
+
     static func medium(_ value: String) -> String {
         guard let date = parse(value) else { return value }
         let formatter = DateFormatter()
