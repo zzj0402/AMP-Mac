@@ -77,6 +77,13 @@ struct SettingsView: View {
                     Label("Reset Timer", systemImage: "stop.fill")
                 }
                 .keyboardShortcut("r", modifiers: [.command])
+
+                Button {
+                    dismiss()
+                } label: {
+                    Label("Close", systemImage: "xmark")
+                }
+                .keyboardShortcut(.cancelAction)
             } header: {
                 Text("Controls")
             } footer: {

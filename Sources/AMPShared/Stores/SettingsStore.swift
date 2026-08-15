@@ -35,6 +35,8 @@ final class SettingsStore: ObservableObject {
     }
 
     private let db = Database.shared
+    private var cancellables = Set<AnyCancellable>()
+    private var isReloading = false
 
     init() {
         let s = db.getSettings()
@@ -47,9 +49,31 @@ final class SettingsStore: ObservableObject {
         _trackingEnabled = .init(wrappedValue: s.trackingEnabled)
         _floatingTimerEnabled = .init(wrappedValue: s.floatingTimerEnabled)
         _focusColor = .init(wrappedValue: s.focusColor)
+
+        NotificationCenter.default.publisher(for: .databaseDidChange)
+            .sink { [weak self] _ in self?.reloadFromDatabase() }
+            .store(in: &cancellables)
+    }
+
+    private func reloadFromDatabase() {
+        guard !isReloading else { return }
+        isReloading = true
+        defer { isReloading = false }
+
+        let s = db.getSettings()
+        sprintMinutes = s.sprintMinutes
+        syncMinutes = s.syncMinutes
+        resetMinutes = s.resetMinutes
+        restMinutes = s.restMinutes
+        restAfterCycles = s.restAfterCycles
+        notificationsEnabled = s.notificationsEnabled
+        trackingEnabled = s.trackingEnabled
+        floatingTimerEnabled = s.floatingTimerEnabled
+        focusColor = s.focusColor
     }
 
     private func save() {
+        guard !isReloading else { return }
         db.updateSettings(AppSettings(
             sprintMinutes: sprintMinutes,
             syncMinutes: syncMinutes,

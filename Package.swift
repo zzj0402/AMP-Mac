@@ -37,7 +37,11 @@ let package = Package(
             dependencies: [
                 "AMPShared"
             ],
-            path: "Sources/AMPiOS"
+            path: "Sources/AMPiOS",
+            // Info.plist is the iOS app manifest, wired via Xcode build settings
+            // (INFOPLIST_FILE / GENERATE_INFOPLIST_FILE=NO); exclude it from SPM
+            // source scanning so it isn't treated as an unhandled source file.
+            exclude: ["Info.plist"]
         )
     ]
 )
