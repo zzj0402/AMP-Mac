@@ -1,5 +1,6 @@
 import Foundation
 import UserNotifications
+import AMPShared
 
 #if os(iOS)
 enum AMPNotificationScheduler {

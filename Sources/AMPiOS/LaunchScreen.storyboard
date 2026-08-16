@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" inPortrait="YES" launchScreen="YES" useTraitCollections="YES" initialViewController="launchScreen">
+    <dependencies>
+        <deployment identifier="iphone" style="minimum" currentVersion="15.0"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="19865"/>
+    </dependencies>
+    <scenes>
+        <scene sceneID="launchScreen">
+            <objects>
+                <viewContentSizeSimulator inspector:visible="false" id="__immediateSetting" screenCentred="YES" useExplicitMinRect="NO" />
+                <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="launchScreenView">
+                    <rect key="frame" x="0" y="0" width="672" height="1024"/>
+                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                    <color key="backgroundColor" red="0.0" green="0.459" blue="1.0" alpha="1.0" colorSpace="custom" customColorSpace="sRGB"/>
+                    <subviews>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="YES" contentMode="scaleAspectFit" translatesAutoresizingMaskIntoConstraints="NO" id="AMPLogo">
+                            <rect key="frame" x="236" y="80" width="200" height="200"/>
+                            <image key="image" name="LaunchScreenIcon"/>
+                        </imageView>
+                        <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="AMP" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="AMPLabel">
+                            <rect key="frame" x="186" y="320" width="300" height="80"/>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="48"/>
+                            <color key="textColor" red="1.0" green="1.0" blue="1.0" alpha="1.0" colorSpace="custom" customColorSpace="sRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <constraints>
+                        <constraint firstAttribute="centerX" guideReference="superview" id="AMPLogoCenterX">
+                            <anchor parent="AMPLogo" systemItem="alignCenterX" attribute="centerX"/>
+                            <anchor target="superview" systemItem="alignCenterX" attribute="centerX"/>
+                        </constraint>
+                        <constraint firstAttribute="centerY" guideReference="superview" multiplier="1/3" constant="0.0" id="AMPLogoCenterY">
+                            <anchor parent="AMPLogo" systemItem="alignCenterY" attribute="centerY"/>
+                            <anchor target="superview" systemItem="alignCenterY" attribute="centerY"/>
+                        </constraint>
+                        <constraint firstAttribute="centerX" guideReference="superview" id="AMPLabelCenterX">
+                            <anchor parent="AMPLabel" systemItem="alignCenterX" attribute="centerX"/>
+                            <anchor target="superview" systemItem="alignCenterX" attribute="centerX"/>
+                        </constraint>
+                        <constraint firstAttribute="top" guideReference="superview" id="AMPLabelTop">
+                            <anchor parent="AMPLabel" systemItem="alignBottom" attribute="bottom"/>
+                            <anchor target="AMPLogo" systemItem="alignBottom" attribute="bottom"/>
+                        </constraint>
+                    </constraints>
+                </view>
+            </objects>
+            <point key="canvasLocation" x="53" y="375"/>
+            <size key="canvasSize" width="672" height="1024"/>
+        </scene>
+    </scenes>
+</document>
